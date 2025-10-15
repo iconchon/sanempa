@@ -1,45 +1,46 @@
 body {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  background: #fafafa;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f5f5f5;
   color: #333;
-  line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
-header, footer {
+header {
+  background-color: #0055ff;
+  color: white;
   text-align: center;
-  background: #004aad;
-  color: #fff;
-  padding: 1.5rem;
+  padding: 20px 0;
 }
 
 main {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 0 20px;
 }
 
 .post {
-  background: #fff;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
 }
 
 .post h2 {
-  margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  color: #0055ff;
+  margin-bottom: 5px;
 }
 
-.post a {
-  text-decoration: none;
-  color: #004aad;
+.post p.date {
+  font-size: 0.9rem;
+  color: #777;
 }
 
-.post time {
-  display: block;
+footer {
+  text-align: center;
   font-size: 0.9rem;
   color: #666;
-  margin-top: 4px;
+  padding: 20px 0;
 }
