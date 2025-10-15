@@ -1,27 +1,69 @@
-// functions/sitemap.xml.js
 export async function onRequest(context) {
-  // 1️⃣ Daftar halaman statis utama yang kamu ingin tampil di sitemap
-  const urls = [
-    "https://sanempa.lookingfor.my.id/",
-    "https://sanempa.lookingfor.my.id/about",
-    "https://sanempa.lookingfor.my.id/contact"
-  ];
+  try {
+    // 🔗 1️⃣ Ambil daftar posting terbaru dari kategori "tutorial"
+    // Ganti `categories=6` dengan ID kategori sebenarnya dari WordPress kamu
+    const wpApiUrl = "https://lookingfor.my.id/wp-json/wp/v2/posts?categories=7&per_page=5&_fields=link,modified";
 
-  // 2️⃣ Buat string XML sesuai standar sitemap.org
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-    ${urls.map(url => `
-      <url>
-        <loc>${url}</loc>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
-      </url>`).join('')}
-  </urlset>`;
+    const wpResponse = await fetch(wpApiUrl, {
+      headers: { "Accept": "application/json" },
+    });
 
-  // 3️⃣ Return Response dengan tipe XML
-  return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml"
+    if (!wpResponse.ok) {
+      throw new Error(`Gagal ambil data dari WordPress (${wpResponse.status})`);
     }
-  });
+
+    const posts = await wpResponse.json();
+
+    // 🧭 2️⃣ URL dasar situs static kamu
+    const staticBase = "https://sanempa.lookingfor.my.id";
+
+    // 3️⃣ Daftar halaman utama static (bisa kamu tambah manual)
+    const staticPages = [
+      `${staticBase}/`,
+      `${staticBase}/about`,
+      `${staticBase}/contact`
+    ];
+
+    // 🗂️ 4️⃣ Gabungkan semua URL (static + posting)
+    const urls = [
+      ...staticPages.map(url => ({
+        loc: url,
+        lastmod: new Date().toISOString(),
+        changefreq: "weekly",
+        priority: "0.8"
+      })),
+      ...posts.map(post => ({
+        loc: post.link,
+        lastmod: post.modified || new Date().toISOString(),
+        changefreq: "daily",
+        priority: "0.9"
+      }))
+    ];
+
+    // 🧩 5️⃣ Bangun isi XML sesuai standar sitemap.org
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `
+  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${u.lastmod}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('')}
+</urlset>`;
+
+    // ✅ 6️⃣ Return sebagai XML response
+    return new Response(xml, {
+      headers: {
+        "Content-Type": "application/xml",
+        "Cache-Control": "public, max-age=600" // cache 10 menit
+      },
+    });
+
+  } catch (err) {
+    return new Response(`<!-- Error: ${err.message} -->`, {
+      headers: { "Content-Type": "text/plain" },
+      status: 500
+    });
+  }
 }
